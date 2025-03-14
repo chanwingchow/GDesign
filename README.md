@@ -223,3 +223,33 @@ IA_Move：角色旋转、移动
 状态间的切换是通过创建的变量来实现的。
 
 ![ ](images/游戏开发/d角色动画/3-5.png)
+
+（五）角色攻击
+
+在Input/Actions中创建IA_Attack。
+
+![ ](images/游戏开发/e角色攻击/1-1.png)
+
+打开Input/IMC_Player，添加映射，将IA_Attack绑定到鼠标左键。
+
+![ ](images/游戏开发/e角色攻击/1-2.png)
+
+打开Animation/Warrior/ABP_Warrior，在状态机输出前添加重写默认插槽。
+
+![ ](images/游戏开发/e角色攻击/1-3.png)
+
+打开Blueprints/BP_Character，添加增强输入事件IA_Attack。同时，修改增强输入事件IA_Dash的逻辑，将其改为仅在角色非攻击、非突进、速度不为0时触发，并将动画播放功能放到默认插槽。
+
+![ ](images/游戏开发/e角色攻击/1-4.png)
+
+将增强输入事件IA_Jump和IA_Move改为在非重击时触发，在轻击时，取消攻击并触发后续动作。
+
+![ ](images/游戏开发/e角色攻击/1-5.png)
+
+![ ](images/游戏开发/e角色攻击/1-6.png)
+
+打开Animation/Warrior/ABP_Warrior，将与Dash有关的部分都删除。
+
+![ ](images/游戏开发/e角色攻击/1-7.png)
+
+![ ](images/游戏开发/e角色攻击/1-8.png)
