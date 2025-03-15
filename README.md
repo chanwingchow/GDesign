@@ -264,10 +264,84 @@ IA_Move：角色旋转、移动
 
 ![ ](images/游戏开发/f角色动画音效/1-2.png)
 
-选中创建的通知，在右下角选择刚刚导入的音效，反复调节效果。同样地，对其他动画做同样的处理。
+选中创建的通知，在右下角选择刚刚导入的音效，反复调节效果。同样地，对其他动画做同样地处理。
 
 ![ ](images/游戏开发/f角色动画音效/1-3.png)
-
+~~~~
 在Blueprints/BP_Character中，为突进重击添加停止跳跃和快速落地的效果；为跳跃添加音效，并限制只能在Z轴速度为0时跳跃。
 
 ![ ](images/游戏开发/f角色动画音效/1-4.png)
+
+### （七）敌人制作
+
+#### 1. 敌人导入并制作动画
+
+将敌人Fire_Worm资源整理并导入Assets/Enemies。
+
+![ ](images/游戏开发/g敌人制作/1-1.png)
+
+这里以攻击动画为例，先对纹理应用Paper2D纹理设置，之后提取Sprite。
+
+![ ](images/游戏开发/g敌人制作/1-2.png)
+
+将Sprite提取模式改为网格，并设置单元宽高，确保每个精灵都能分割在一个网格中，并且精灵底部触碰网格底部。
+
+![ ](images/游戏开发/g敌人制作/1-3.png)
+
+提取后将所有Sprite的枢轴模式改为底部居中，创建图像序列即可。
+
+![ ](images/游戏开发/g敌人制作/1-4.png)
+
+之后仿照角色制作，在Animation/FireWorm创建ABP_FireWorm和AS_FireWorm。
+
+![ ](images/游戏开发/g敌人制作/1-5.png)
+
+![ ](images/游戏开发/g敌人制作/1-6.png)
+
+#### 2. 重构分类生物蓝图
+
+在Blueprints下，将BP_Character改名为BP_Warrior，并存放到Characters文件夹中。
+
+新建一个PaperZDCharacter命名BP_Creature，作为游戏中所有生物的父类，再新建其子类BP_Character和BP_Enemy。
+
+将BP_Creature材质 > 元素0改为MaskedLitSpriteMaterial，勾选光照 > 投射阴影。
+
+新建一个Enemies文件夹存放敌人，在其中新建BP_Enemy子类，命名为BP_FireWorm。
+
+![ ](images/游戏开发/g敌人制作/2-1.png)
+
+将BP_Warrior的父类改为BP_Character。
+
+![ ](images/游戏开发/g敌人制作/2-2.png)
+
+将BP_Warrior的SpringArm和Camera组件移动到父类BP_Character。
+
+![ ](images/游戏开发/g敌人制作/2-3.png)
+
+将BP_Warrior的所有蓝图和变量移动到BP_Character。
+
+![ ](images/游戏开发/g敌人制作/2-4.png)
+
+将增强输入操作IA_Attack和IA_Dash中引用到的动画资源提升为变量，并在BP_Warrior中设置。
+
+![ ](images/游戏开发/g敌人制作/2-5.png)
+
+![ ](images/游戏开发/g敌人制作/2-6.png)
+
+#### 3. 构建敌人动画蓝图
+
+到BP_FireWorm中，将Paper ZD > Anim Instance Class改为ABP_FireWorm。
+
+![ ](images/游戏开发/g敌人制作/3-1.png)
+
+打开ABP_FireWorm，再AnimGraph中创建状态机。
+
+![ ](images/游戏开发/g敌人制作/3-2.png)
+
+打开状态机，仿照ABP_Warrior制作。
+
+![ ](images/游戏开发/g敌人制作/3-3.png)
+
+在事件图标中添加逻辑。
+
+![ ](images/游戏开发/g敌人制作/3-4.png)
