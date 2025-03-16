@@ -345,3 +345,61 @@ IA_Move：角色旋转、移动
 在事件图标中添加逻辑。
 
 ![ ](images/游戏开发/g敌人制作/3-4.png)
+
+### （八）敌人AI行为树
+
+#### 1. 创建敌人AI行为树
+
+在AI/Enemy下新建AIController子类和行为树，分别命名为AIC_Enemy和BT_Enemy。
+
+![ ](images/游戏开发/h敌人AI行为树/1-1.png)
+
+打开AIC_Enemy，在事件开始运行时运行行为树BT_Enemy。
+
+![ ](images/游戏开发/h敌人AI行为树/1-2.png)
+
+打开BT_Enemy，新建一个人物，名为BTTask_Patrol。
+
+![ ](images/游戏开发/h敌人AI行为树/1-3.png)
+
+在BTTask_Patrol中让AI控制的角色在圆形范围内移动。
+
+![ ](images/游戏开发/h敌人AI行为树/1-4.png)
+
+回到BT_Enemy，制作行为树，然角色每隔一段事件在附近巡逻。
+
+![ ](images/游戏开发/h敌人AI行为树/1-5.png)
+
+#### 2. 敌人设置
+
+打开Blueprints/BP_Enemy，设置Pawn > 自动控制AI为已防止在场景中或已生成，将Pawn > AI控制器类改为AIC_Enemy。
+
+![ ](images/游戏开发/h敌人AI行为树/2-1.png)
+
+#### 3. 测试AI是否正常运行
+
+在场景中创建体积 > 导航网格体边界体积。
+
+![ ](images/游戏开发/h敌人AI行为树/3-1.png)
+
+将导航网格体边界体积放大，确保覆盖场景中的物品，按下P键预览可导航区域。
+
+![ ](images/游戏开发/h敌人AI行为树/3-2.png)
+
+将BP_FireWorm放在场景中，观察AI是否生效。通过测试发现敌人可以正常移动，但是在移动时，会转动Sprite，因为Sprite是2D的，转动时会显示成一片，需要改进AI移动。
+
+![ ](images/游戏开发/h敌人AI行为树/3-3.png)
+
+#### 4. 重构移动时旋转
+
+将BP_Character中的旋转逻辑提取到BP_Creature中作为单独方法存在，并且将BP_Creature的Pawn > 使用控制器旋转Yaw取消勾选。
+
+![ ](images/游戏开发/h敌人AI行为树/4-1.png)
+
+![ ](images/游戏开发/h敌人AI行为树/4-2.png)
+
+在BTTask_Patrol中计算朝向，将Controlled Pawn转化为BP_Enemy，在AI Move To前调用其Roate将敌人转向。
+
+![ ](images/游戏开发/h敌人AI行为树/4-3.png)
+
+
