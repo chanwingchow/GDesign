@@ -401,5 +401,3 @@ IA_Move：角色旋转、移动
 在BTTask_Patrol中计算朝向，将Controlled Pawn转化为BP_Enemy，在AI Move To前调用其Roate将敌人转向。
 
 ![ ](images/游戏开发/h敌人AI行为树/4-3.png)
-
-
