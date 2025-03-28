@@ -36,6 +36,12 @@ dependencies {
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
+    implementation("io.ktor:ktor-server-auth:3.1.1")
+    implementation("io.ktor:ktor-server-auth-jwt:3.1.1")
+    implementation("io.ktor:ktor-server-auth:3.1.1")
+    implementation("io.ktor:ktor-serialization-gson:3.1.1")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    implementation("com.mysql:mysql-connector-j:9.2.0")
+    implementation("com.diglol.crypto:kdf:0.2.0")
 }

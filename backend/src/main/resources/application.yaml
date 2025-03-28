@@ -4,3 +4,9 @@ ktor:
       - com.chanwingchow.ApplicationKt.module
   deployment:
     port: 8080
+
+jwt:
+  secret: "1234567"
+  issuer: "http://127.0.0.1:8080"
+  audience: "narrow-escape-backend"
+  realm: "Access to Narrow Escape backend"
