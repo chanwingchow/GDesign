@@ -19,7 +19,7 @@ fun Application.configureJWT() {
     val jwtRealm = environment.config.property("jwt.realm").getString()
 
     authentication {
-        jwt {
+        jwt("jwt") {
             realm = jwtRealm
             verifier(
                 JWT

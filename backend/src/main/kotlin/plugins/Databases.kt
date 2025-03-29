@@ -1,5 +1,6 @@
 package com.chanwingchow.plugins
 
+import com.chanwingchow.database.configureProductRoute
 import com.chanwingchow.database.configureUserRoute
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.*
@@ -25,4 +26,5 @@ fun Application.configureDatabases() {
     )
 
     configureUserRoute(database)
+    configureProductRoute(database)
 }
