@@ -1,5 +1,6 @@
 package com.chanwingchow.plugins
 
+import com.chanwingchow.database.configureOrderRoute
 import com.chanwingchow.database.configureProductRoute
 import com.chanwingchow.database.configureUserRoute
 import io.ktor.server.application.*
@@ -25,6 +26,8 @@ fun Application.configureDatabases() {
         password = "1246",
     )
 
+    configureJWT()
     configureUserRoute(database)
     configureProductRoute(database)
+    configureOrderRoute(database)
 }

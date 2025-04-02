@@ -15,7 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
  * @param password 密码
  */
 @Serializable
-data class User(val id: Int, val name: String? = null, val password: String)
+data class User(val id: Int, val password: String, val name: String = id.toString(), val points: Int = 0)
 
 
 /**
@@ -27,6 +27,7 @@ class UserService(database: Database) {
         val id = integer("id")
         val name = varchar("name", length = 20)
         val password = text("password")
+        val points = integer("points")
 
         override val primaryKey = PrimaryKey(id)
     }
@@ -48,7 +49,7 @@ class UserService(database: Database) {
     suspend fun select(id: Int): User? = query {
         Users.selectAll()
             .where { Users.id eq id }
-            .map { User(it[Users.id], it[Users.name], it[Users.password]) }
+            .map { User(it[Users.id], it[Users.name], it[Users.password], it[Users.points]) }
             .singleOrNull()
     }
 
@@ -61,7 +62,7 @@ class UserService(database: Database) {
     suspend fun insert(user: User) = query {
         Users.insert {
             it[id] = user.id
-            it[name] = user.name ?: ""
+            it[name] = user.name
             it[password] = user.password
         }
     }
@@ -74,7 +75,7 @@ class UserService(database: Database) {
      */
     suspend fun update(user: User) = query {
         Users.update(where = { Users.id eq user.id }) {
-            it[name] = user.name ?: ""
+            it[name] = user.name
             it[password] = user.password
         }
     }

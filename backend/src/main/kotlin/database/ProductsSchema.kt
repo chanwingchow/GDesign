@@ -3,6 +3,7 @@ package com.chanwingchow.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -72,6 +73,21 @@ class ProductService(database: Database) {
                     points = it[Products.points],
                 )
             }
+    }
+
+
+    suspend fun select(id: Long): Product? = query {
+        Products.selectAll()
+            .where { Products.id eq id }
+            .map {
+                Product(
+                    id = it[Products.id],
+                    name = it[Products.name],
+                    image = it[Products.image],
+                    points = it[Products.points],
+                )
+            }
+            .singleOrNull()
     }
 
 
