@@ -1,403 +1,354 @@
-<h1 align="center">商品真实化的Roguelike游戏系统设计与开发</h1>
+# 商品真实化的Roguelike游戏系统设计与开发
 
-## 一、概述
 
-### 游戏设计
+## TODO
 
-- 地图随机生成
-- 打怪获取属性增强和金钱，怪物随时间增强（难度增强），成功将战利品带出世界则拥有该战利品。
+- [ ] 添加商城UI
 
-### 后端设计
+## 摘要
 
-#### 安全
+近年来，游戏行业和电商行业都处于高速发展阶段，在电商平台中融入游戏元素已经成为一大趋势，而游戏中却很少有电商元素的引入。文章尝试将电商元素融入Roguelike游戏，将真实商品商城融入游戏风格，提升游戏的丰富性和实用性，提高用户粘性。文章使用了虚幻引擎作为游戏开发工具，以Kotlin作为后端主要语言，在技术尝新的同时，也探讨了游戏与电商的深度融合，为游戏行业带来新的可能性。通过该实验，为游戏与电商的深度融合提供了新的思路和实践经验。
 
-- JWT
+## Abstract
 
-#### 数据表
+In recent years, both the game industry and the e-commerce industry are in the stage of rapid development, and the integration of game elements into e-commerce platforms has become a major trend, while the introduction of e-commerce elements in games is rare.The article tries to integrate e-commerce elements into Roguelike games, integrating real merchandise malls into the game style, enhancing the richness and practicality of the game, and improving user stickiness.The article uses Unreal Engine as the game development tool and Kotlin as the main language of the back-end, which explores the deep integration of games and e-commerce and brings new possibilities for the game industry while tasting new technologies.The experiment provides new ideas and practical experience for the deep integration of games and e-commerce.
 
-- 用户（密码加密）
-- 商品列表（描述、价格、库存、图片、分类、促销）
-- 订单（创建、状态更新）
-- 商品用户评分
+## 目录
 
-## 二、要点
+```
+1 绪论
+    1.1 研究背景与意义
+    1.2 国内外研究现状
+    1.3 本文主要创新
+    1.4 相关技术
+2 游戏设计
+    2.1 游戏核心机制
+    2.2 经济系统
+        2.2.1 货币系统
+        2.2.2 资源管理
+    2.3 游戏商城设计
+    2.4 游戏世界与关卡
+    2.5 生物设计
+        2.5.1 生物类设计
+        2.5.2 角色动画
+        2.5.3 玩家输入
+        2.5.4 动物和敌人 AI
+        2.5.5 攻击伤害实现
+    2.6 用户界面
+    2.7 音效与视觉表现
+3 后端设计
+    3.1 数据库设计
+        3.1.1 实体与关系
+        3.1.2 字段设计
+    3.2 安全与认证
+        3.2.1 用户密码加密
+        3.2.2 资源访问限制
+    3.3 商品网络爬虫
+    3.4 推荐算法
+    3.5 订单
+4 总结与展望
+    4.1 研究成果总结
+    4.2 不足与改进方向
+    4.3 未来研究方向
+参考文献
+致谢
+```
 
-- 真实商品属性建模（SKU、价格弹性、生命周期理论），设计商品属性（成本、质量、稀缺性）动态变化的规则
+## 1 绪论
 
-- 用户画像
+### 1.1 研究背景与意义
 
-- 设计**动态定价算法**：玩家需根据实时供需数据（游戏内仪表盘）调整价格策略，体现收益管理理论。
-* 模拟**市场竞争机制**：NPC对手使用差异化策略（低价倾销、精准营销），玩家需通过SWOT分析制定应对方案。
+近年来，中国游戏行业蓬勃发展，涌现出许多备受瞩目的作品。其中，《黑神话：悟空》作为一款由国内团队开发的动作角色扮演游戏，凭借其高水准的画面表现、精妙的战斗设计以及对传统文化的创新演绎，成为国产游戏的标杆。该游戏不仅在国内广受关注，在国际游戏市场上也赢得了高度评价，彰显出中国游戏行业在技术、创新和文化输出方面的显著进步。
 
-## 三、游戏开发
+目光转向电商行业，近几年，各大电商平台为增强用户粘性，引入了各种小游戏。这些游戏的类型多以养成、消除、抽奖等为主，游戏难度较低，适合各类用户游玩，极大程度上丰富了平台内容，提升了用户使用时间。除了主要玩法外，游戏的其他内容基本上都是服务于商品营销，例如，有的游戏中会要求用户浏览、购买商品以获取游戏道具。现如今，诸如小红书、抖音等社交、短视频平台接入了电商购物功能，以进一步提升用户留存。反观游戏行业，很少有产品结合真实商品售卖，将电商元素融入游戏中。
 
-### （一）项目创建
+Roguelike是一种以高难度、随机生成和永久死亡为特点的游戏类型。本文旨在将电商元素融入Roguelike游戏，尝试在游戏中加入真实商品商城，通过将真实商品与游戏机制相结合，使得玩家可以在游戏中使用游戏货币购买所需商品，丰富游戏内容，提升用户粘性。同时，游戏内的推荐算法可以根据玩家的行为和偏好，提供个性化的商品推荐，进一步优化购物体验。通过将电商元素融入Roguelike游戏，本文将为游戏行业开辟新的商业模式，推动游戏与电商的深度融合，为未来游戏开发和电商营销提供新的方向和思路。
 
-#### 1. 新建游戏项目
+### 1.2 国内外研究现状
 
-创建一个目标平台为桌面的蓝图游戏项目。
+高蕾（2024）和熊瑛（2024）分别从冲动购买和持续意愿角度指出，游戏化程度与场景匹配度是关键驱动因素<sup>[1][2]</sup>，而汪旭晖等（2023）进一步验证了积分、奖励等具体元素对参与度和消费意愿的显著提升作用<sup>[7]</sup>。在游戏化设计层面，李雨欣（2024）强调设计需与平台风格协调<sup>[6]</sup>，陈元硕等（2024）和张林（2024）则从用户需求满足和元素可感知性角度提出优化路径<sup>[3][4]</sup>；李彤云等（2024）和焦媛媛等（2023）的研究补充了游戏化在信息传递与信任构建中的双重价值<sup>[8][15]</sup>，而杜松华等（2022）将视角延伸至社会责任领域，揭示游戏化对绿色消费的驱动作用<sup>[16]</sup>。用户心理机制方面，马可盈（2022）的系统性模型与何玉川（2024）的忠诚度研究共同表明，感知趣味性、社会影响等心理因素是持续使用的重要中介<sup>[5][18]</sup>。此外，李建斌等（2024）、王茜和喻继军（2020）以及楚啸原和杨晓凡（2022）从技术侧探索了个性化推荐与虚拟商品认知如何通过游戏化增强转化效率<sup>[9][10][11]</sup>，唐乐水和马缘园（2022）及文露（2022）则聚焦互动设计与叙事技巧的应用效果<sup>[19][20]</sup>。
 
-![ ](images/游戏开发/a项目创建/1-1.png)
+Paschmann JW等（2025）、Denden M等及Zhang J等（2023）通过实证指出奖励、积分和竞争机制是提升参与度的核心手段<sup>[21][22][28]</sup>，Milanesi M等（2023）和Szachta K（2022）进一步肯定了其对品牌忠诚度的长期价值<sup>[26][30]</sup>。但Butler N等（2024）和Durmaz TB等（2024）提出警示，强调游戏化需以用户真实幸福感和综合满意度为伦理基准<sup>[23][25]</sup>；Ho Y-J等（2022）的非货币化实验<sup>[31]</sup>则为此提供了对比证据。在策略设计上，Ebrahimi E等（2024）主张通过竞争激发活跃度<sup>[24]</sup>，Xu X-Y等（2023）呼吁群体定制化设计<sup>[29]</sup>，Kusumawardani KA等（2023）则提出需整合社交与实用价值以优化决策链路<sup>[27]</sup>，共同构成了游戏化在跨文化语境下的实践框架。
 
-#### 2. 项目配置
+### 1.3 主要创新
 
-在内容目录下创建Blueprints目录，在Blueprints目录下创建游戏模式，命名为BP_GameMode。
+创新游戏商业模式。传统游戏主要依赖于虚拟商品销售或广告收入，真实商品融入游戏为游戏行业开辟了新的商业模式。这种模式不仅能够为游戏开发者带来额外的收入，还能为商家提供新的营销渠道。
 
-![ ](images/游戏开发/a项目创建/2-1.png)
+推动游戏与电商的跨界融合。本文尝试将游戏与电商两大领域结合，探索两者之间的协同效应。通过游戏化的方式促进商品销售，同时使用电商元素丰富游戏内容，推进游戏与电商的深度融合，为未来跨领域合作提供新的思路。
 
-在Maps目录下新建一个新的关卡Main。
+新技术的应用与实现。本文使用虚幻引擎5开发Roguelike游戏，使用Ktor、Exposed和Kotlin Serialization等构建游戏商城服务器。
 
-![ ](images/游戏开发/a项目创建/2-2.png)
+### 1.4 相关技术
 
-在顶部菜单栏打开编辑 > 项目设置，在项目 > 地图和模式中，将默认模式改为BP_GameMode，将编辑器开始地图和游戏默认地图改为Main。
+虚幻引擎5（Unreal Engine 5，简称UE5）是由Epic Games开发的最新版游戏引擎，于2021年5月发布预览。UE5在图形渲染、物理模拟、动画系统、开发工具等方面进行了全面升级，使其成为目前最热门的3D游戏引擎。其核心特性包括Nanite虚拟化集合体、Lumen全局光照、虚拟阴影贴图（Virtual Shadow Maps）、MetaHuman Creator、World Partition、动画系统改进。UE5支持使用蓝图开发游戏，能极大降低上手门槛并提升开发效率，这也是本文选用UE5的一大原因。
 
-![ ](images/游戏开发/a项目创建/2-3.png)
+Ktor是由JetBrains开发的跨平台的轻量级异步Kotlin框架，可用于构建Web应用程序、HTTP服务和微服务。Ktor充分利用了Kotlin语言特性和协程（Coroutines），提供了高性能、可扩展的异步编程模型。其核心特性包括轻量级与模块化、异步与非阻塞、路由系统、丰富的官方内置插件、跨平台支持、易于测试。依赖于逐步健全的Kotlin生态和Kotlin与Java的互操作性，Ktor已然成为一个构建现代化应用程序后端的不错之选。
 
-将平台 > Windows > 默认RHI改为DirectX 11（该操作可解决Video Memory Has Been exhausted的异常）。
+Exposed是由JetBrains开发的轻量级Kotlin ORM（Object-Relational Mapping，对象关系映射）框架，用于实现Kotlin应用程序与关系数据库的交互。Exposed提供了一种简单的方式来操作数据库，并支持多种数据库类型，如MySQL、PostgreSQL、SQLite等。Exposed的核心特性包括类型安全、可扩展的SQL构建器、事务、批量操作、Lazy Loading、Join操作、自定义SQL语句等。
 
-![ ](images/游戏开发/a项目创建/2-4.png)
+Kotlin Serialization是由JetBrains开发的Kotlin序列化库，用于序列化和反序列化Kotlin对象。Kotlin Serialization提供了一种简单的方式来将Kotlin对象转换为字节数组，并支持多种序列化格式，如JSON、CBOR、Protobuf等。Kotlin Serialization的核心特性包括可扩展的序列化格式支持、支持自定义序列化器、支持序列化与反序列化配置、支持序列化与反序列化扩展等。
 
-### （二）角色创建
+## 2 游戏设计
 
-#### 1. 资源处理
+### 2.1 游戏核心机制
 
-将下载的角色资源拖动到虚幻虚幻引擎中，并做初步地整理和重命名，删除不需要的内容。
+Roguelike是以随机生成和永久死亡为特点的游戏类型，起源于1980年的游戏《Rogue》，因其独特的机制和深度的策略性，逐渐发展为一个独立的类别。在本文设计的游戏中，玩家需要在一个随机生成的世界中探索，击杀怪物以提升自身能力，并获取相应的游戏点数<sup>[31]</sup>。玩家的最终目标是找到逃生裂隙，最终安全出逃，获得点数。如果玩家在逃生途中不慎死亡，会直接结束本局游戏。
 
-![ ](images/游戏开发/b角色创建/1-1.png)
+游戏的画面风格参考了《歧路旅人》、《饥荒》等游戏，采用2D+3D的画面表现形式，游戏中的所有生物采用2D精灵图，而游戏场景则使用3D模型。在2D像素画风和3D模型的强烈对比下，可以给玩家带来一种不一样的游戏体验。
 
-选中导入的纹理，右键选择应用Paper2D纹理设置。
+游戏开发过程中用到的美术资源均来自虚幻引擎Fab的资源，以及开源社区的素材。
 
-![ ](images/游戏开发/b角色创建/1-2.png)
+### 2.2 经济系统
 
-#### 2. 制作角色动画
+#### 2.2.1 货币系统
 
-因为角色动画制作都是重复操作，这里以攻击动画为例。全选文件夹中的所有纹理，右键选择创建Sprite。
+游戏点数作为游戏货币，可以作为玩家在某局游戏中的分数，也可以作为游戏内的货币，用于购买商品。游戏点数可以通过击杀怪物、收集资源、完成任务等获得。 考虑到真实货币的购买力在短期内并不会有很大变动，游戏货币与真实货币间的转换不需要额外处理，游戏点数与真实货币的转换比例为1000:1。
 
-![ ](images/游戏开发/b角色创建/2-1.png)
+#### 2.2.2 资源管理
 
-此时会得到多个精灵图，右键选择资产操作 > 编辑属性矩阵中的选择。
+在游戏中玩家需要关注角色的生命值等信息，通过击杀其他生物获取随机的属性提升和状态补给，通过合理的资源分配，最终成功逃生。
 
-![ ](images/游戏开发/b角色创建/2-2.png)
+### 2.3 游戏商城设计
 
-在顶部菜单将窗口 > 细节打开，将所有精灵图的枢轴模式改为自定义(27, 43)（需要根据精灵图调节合适的数值）。
+在积攒到一定游戏点数后，玩家可以前往游戏商城中购买商品，商品的类型主要是一些日用品、食品和游戏周边，玩家可以根据个人喜好兑换商品。游戏商城的风格与游戏的整体风格一致，不会给玩家一种割裂感<sup>[6]</sup>。
 
-![ ](images/游戏开发/b角色创建/2-3.png)
+### 2.4 游戏场景生成
 
-右键将这些精灵图创建图像序列，双击图像序列，可以预览，在右侧细节面板可以通过设置精灵 > 每秒帧数来改变播放速率。
+PCG（Procedural Content Generation）是虚幻5中新增的程序化内容生成框架，旨在帮助开发者高效地创建复杂且多样化的游戏内容。PCG框架通过自动化和程序化的方式生成游戏世界中的各种元素，如植被、建筑物、生物等。
 
-![ ](images/游戏开发/b角色创建/2-4.png)
+本文的游戏场景借助PCG框架，在一定区域获取地形数据，使用表面采样器对其进行采样，经过一系列的调整、修改和差异化，最终自动生成场景植被、建筑和AI生物等。玩家在每一次开始新游戏时，程序都会生成随机的种子用于场景生成，以保证每次生成的场景都是相对独一无二的。
 
-#### 3. 创建角色蓝图类
+### 2.5 生物设计
 
-在虚幻Fab中添加PaperZD插件，并在虚幻引擎顶部菜单栏编辑 > 插件中将PaperZD插件勾选上，重启虚幻引擎。
+#### 2.5.1 生物类设计
 
-![ ](images/游戏开发/b角色创建/3-1.png)
+为了简化开发流程，本文中的生物都统一由一个蓝图类BP_Creature（生物，派生自PaperZDCharacter）派生而来，在BP_Creature下派生出BP_Animal（动物）和BP_Hunter（狩猎者，可对其他生物发起攻击），BP_Hunter下派生出BP_Character（玩家）和BP_Enemy（敌人）。
 
-在Blueprints目录下新建蓝图类，选择PaperZDCharacter作为父类，将该蓝图命名为BP_Character。
+![生物派生关系](Vector/2.5.1-1.png)
 
-![ ](images/游戏开发/b角色创建/3-2.png)
+游戏中的生物都是2D精灵，在将2D纹理导入虚幻引擎后，需要使用Pager2D对纹理做处理，提取出精灵图并组成对应动画的纸片图像序列。之后使用PaperZD插件创建精灵的动画源和动画蓝图。2D生物需要将精灵材质改为MaskedLitSpriteMaterial，并设置投射阴影以展现角色的光照阴影效果。
 
-双击打开BP_GameMode，BP_Character设为默认pawn类。
+![角色光照阴影效果](Vector/2.5.1-2.png)
 
-![ ](images/游戏开发/b角色创建/3-3.png)
+因为所有生物皆为2D精灵图，其Z轴旋转只能有两个值：0或180。生物移动时，需要根据X轴方向决定生物的Z轴相对旋转。具体来说，当X轴方向为正时，Z轴应相对旋转应为0，当X轴方向为负时，Z轴应相对旋转应为180。
 
-双击打开BP_Character，在左侧组件面板选择Sprite，在右侧细节面板设置源图像序列视图为Warrior_Idle。
+![角色移动旋转蓝图](Vector/2.5.1-3.png)
 
-![ ](images/游戏开发/b角色创建/3-4.png)
+#### 2.5.2 角色动画
 
-切换至右视图，调整Sprite高度、位置以适应胶囊体高度，同时调整胶囊体半径以适应角色长宽。
+在虚幻5中，2D角色的动画需要通过一系列的动作纹理图组合成纸片图像序列来实现，而多个动画的切换需要借助动画状态机来实现。虚幻5本身并没有对2D角色动画状态机的支持，因此需要使用PaperZD插件创建2D角色的动画源和动画蓝图。动画源中定义了一个2D角色的多个动画，而动画蓝图中可以创建动画状态机，根据角色当前状态来播放动画。
 
-![ ](images/游戏开发/b角色创建/3-5.png)
+![角色动画状态机](Vector/2.5.2-1.png)
 
-![ ](images/游戏开发/b角色创建/3-6.png)
+#### 2.5.3 玩家输入
 
-在左侧组件面板添加弹簧臂和相机组件，调整弹簧臂的旋转和目标臂长度，关闭进行碰撞检测。
+虚幻5的增强输入系统（Enhanced Input System）是对传统输入系统的升级，旨在提供更灵活、强大的玩家输入处理能力。该系统支持复杂的输入处理、运行时重新映射输入、以及多平台输入设备的无缝继承。
 
-![ ](images/游戏开发/b角色创建/3-7.png)
+本文中通过创建输入映射上下文，将键盘、鼠标、手柄等的输入操作映射到事件。将映射上下文添加到玩家控制器增强输入本地玩家子系统上，并实现相应的输入操作事件，即可实现玩家输入操作。
 
-#### 4. 为角色添加光照投影
+![添加映射上下文蓝图](Vector/2.5.3-1.png)
 
-将Sprite材质选取为MaskedLitSpriteMaterial。
+#### 2.5.4 动物和敌人 AI
 
-![ ](images/游戏开发/b角色创建/4-1.png)
+虚幻5中的AI行为树（Behavior Tree）是一种用于实现游戏AI的强大工具。它通过树状结构来定义AI的行为逻辑，使得开发者能够以模块化和可视化的方式构建复杂的AI行为逻辑。
 
-勾选投射阴影。
+在本文中，动物和敌人都具备一个行为：当处于闲置状态时，每隔一段时间在出生地附近走动。
 
-![ ](images/游戏开发/b角色创建/4-2.png)
+![敌人的AI行为树](Vector/2.5.4-1.png)
 
-### （三）玩家输入
+此外，动物和敌人的蓝图都添加了一个PawnSensing组件，该组件会触发OnSeePawn事件。当玩家靠近时，动物会朝着远离玩家的方向跑；而敌人会朝着玩家的方向跑，并在可以攻击时攻击玩家。
 
-#### 1. 新建输入映射情景
+![BP_Enemy的PawnSensing组件](Vector/2.5.4-2.png)
 
-在内容文件夹下新建Input文件夹，在其中新建输入 > 输入映射情景，命名为IMC_Player。
+#### 2.5.5 攻击伤害实现
 
-![ ](images/游戏开发/c玩家输入/1-1.png)
+虚幻5的蓝图中提供了应用伤害和任意伤害事件。在播放攻击动画时，可以向角色前方执行按通道进行多球体碰撞，检测到可攻击对象时，调用应用伤害对可攻击对象造成伤害。对于被攻击方，则实现任意伤害事件，减少生命值并播放受伤动画。
 
-在Input文件夹新建Actions文件夹，在其中新建输入 > 输入操作IA_Dash、IA_Jump和IA_Move，分别表示角色突进、跳跃和移动操作。
+在本文中，应用伤害的功能被定义于BP_Hunter中，只有狩猎者才能发出攻击；而任意伤害事件被定义于BP_Creature中，所有生物均可被攻击。
 
-![ ](images/游戏开发/c玩家输入/1-2.png)
+![BP_Hunter的普通攻击蓝图](Vector/2.5.5-1.png)
 
-双击打开IA_Move，将操作 > 值类型改为Axis2D，使角色支持四方向移动。
+![BP_Creature的被攻击蓝图](Vector/2.5.5-2.png)
 
-![ ](images/游戏开发/c玩家输入/1-3.png)
+### 2.6 用户界面
 
-双击打开IMC_Player，将输入操作添加到映射中。
+虚幻5提供了强大的工具和框架来创建用户界面（User Interface，简称UI）。UMG是虚幻5中用于创建用户界面的主要工具，基于Slate框架构建，提供了可视化的UI设计器。其主要组件包括Widget Blueprint和Widget Components，可以用来组合复杂的用户界面。
 
-- IA_Dash绑定为左Shift
+在设计UI时，应当将其拆分为多个小部件（Widget），便于复用和维护。例如，图2.5.6-1中的多个按钮来自同一个组件蓝图类，减少重复操作的同时能做到最大化复用逻辑。要尽量避免在每帧中更新不必要的UI元素，使用缓存和延迟更新技术。确保UI交互逻辑直观易用，提供清晰的提示和反馈。
 
-- IA_Jump绑定为空格键
+![游戏开始菜单UI](Vector/2.5.6-1.png)
 
-- IA_Move绑定了WASD四个键：
-  W键添加了拌合输入轴值和否定的修改器
-  A键添加了否定的修改器
-  S键添加了拌合输入轴值的修改器
-  D键没有任何修改器
+### 2.7 音效与视觉表现
 
-![ ](images/游戏开发/c玩家输入/1-4.png)
+虚幻5支持在多种情景下播放音乐或音效，例如在UI创建时，可以调用PlaySound2D来播放背景音乐；鼠标悬停按钮时，可以触发相关事件并播放音效；角色播放动画时，可以定义播放音效的通知实现在动画时播放音效。通过为多种情景添加适当的音乐或音效，可以提升用户的使用体验<sup>[4]</sup>。
 
-#### 2. 创建玩家控制器
+![角色跑步时会播放脚步声的音效](Vector/2.5.7-1.png)
 
-在Blueprints目录下新建玩家控制器，命名为BP_PlayerController。
+本文参考了《歧路旅人》的游戏表现风格，采用2D+3D的形式呈现角色和游戏场景，同时使用多个2D特效补充角色动画过程中的单调表现，提升游玩乐趣。
 
-![ ](images/游戏开发/c玩家输入/2-1.png)
+![角色在重击时会有刀光效果](Vector/2.5.7-2.png)
 
-双击打开BP_GameMode，将玩家控制器类改为BP_PlayerController。
+## 3 后端设计
 
-![ ](images/游戏开发/c玩家输入/2-2.png)
+本文的后端全都使用Kotlin的框架。
 
-#### 3. 获取玩家控制器并添加映射上下文
+在服务器构建上使用异步框架Ktor。Ktor充分利用了Kotlin的语言特性，避免了传统回调地狱（Callback Hell）问题，代码更简洁易读。此外，因为Kotlin是一门强类型语言，并且对null检测进行了优化，可以避免很多常见的错误。同时，Kotlin的跨平台特性也使得Ktor成为一个跨平台框架，易于移植和维护。Ktor基于异步非阻塞的I/O模型，能够高效处理高并发请求，减少线程开销。
 
-双击打开Blueprints/BP_Character，在事件已控制时获取玩家控制器并为其增强输入本地玩家子系统添加映射上下文。
+在数据库连接上，使用了Exposed。Exposed是一个Kotlin的ORM框架，使用DSL（Domain Specific Language）风格，开发者不需要自己编写SQL语句，使得数据库操作更加简单易读。
 
-![ ](images/游戏开发/c玩家输入/3-1.png)
+### 3.1 数据库设计
 
-#### 4. 角色增强输入操作
+本文使用MySQL作为后端数据库。MySQL是一个关系型数据库管理系统，以其高性能、可靠性和易用性而闻名。MySQL支持多种操作系统，包括Windows、Linux、macOS等。
 
-IA_Dash：角色向前方弹射
+#### 3.1.1 实体与关系
 
-IA_Jump：角色跳跃
-IA_Move：角色旋转、移动
+本文的数据库设计包含三个实体：用户、商品和订单。三者之间存在以下关系：
+- 用户与商品：一个用户可以购买多个商品，一个商品可以属于多个用户。
+- 用户与订单：一个用户可以拥有多个订单，一个订单属于一个用户。
+- 商品与订单：一个商品可以属于多个订单，一个订单包含多个商品。
 
-![ ](images/游戏开发/c玩家输入/4-1.png)
+#### 3.1.2 字段设计
 
-### （四）角色动画
+##### （1）用户
 
-#### 1. 创建动画源
+主键：id
 
-在Animation/Warrior下创建PaperZD AnimationSource，命名为AS_Warrior。
+属性：name（玩家名称）、password（密码）、points（游戏点数）
 
-![ ](images/游戏开发/d角色动画/1-1.png)
+##### （2）商品
 
-双击打开AS_Warrior，点击左侧Add New添加新的动画源，并在右侧选择对应的纸片图像序列。
+主键：id
 
-![ ](images/游戏开发/d角色动画/1-2.png)
+属性：name（商品名称）、image（图片）、points（所需游戏点数）
 
-#### 2. 创建动画蓝图
+##### （3）订单
 
-在同一目录下创建PaperZD AnimBP，选择AS_Warrior为其动画源，命名为ABP_Warrior。
+主键：id
 
-![ ](images/游戏开发/d角色动画/2-1.png)
+属性：userId（用户id）、productIds（商品id列表）、points（订单所需点数）、time（下单时间）
 
-打开Blueprints/BP_Character，将其Animation Component的PaperZD > Anim Instance Class设为ABP_Warrior。
+![数据库概览](Vector/3.1.2-1.png)
 
-![ ](images/游戏开发/d角色动画/2-2.png)
+### 3.2 安全与认证
 
-#### 3. 创建状态机
+#### 3.2.1 用户密码加密
 
-打开ABP_Warrior，添加变量并在事件图表中编辑。
+通常，用户的密码在存储到数据库时不能以明文形式存储，必须进行哈希加密（不可逆加密）。Argon2是一种密码哈希函数，专为密码哈希和密钥派生而设计。它在2015年赢得了密码哈希竞赛（Password Hashing Competition），并被广泛认为是目前最安全的密码哈希算法之一。
 
-![ ](images/游戏开发/d角色动画/3-1.png)
+本文中借助了Argon2进行密码加密，在密码存入数据库前，先对密码进行加密处理。在登录时，只需要验证加密后的密码是否与数据库中存储的加密后的密码匹配，以确定用户身份。
 
-在AnimGraph中创建状态机Character State Machine，并连接到Output Animation。
+![登录时进行Argon2加密](Vector/3.2.1-1.png)
 
-![ ](images/游戏开发/d角色动画/3-2.png)
+#### 3.2.2 资源访问限制
 
-双击打开Character State Machine，创建多个Animation State，重命名并连接。
+JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用间安全地传输信息。它通常用于身份验证和信息交换，特别是在分布式系统中。JWT由Header、Payload和Signature三部分组成，三者用“.”分隔。Header部分包含令牌的类型和使用的签名算法，Payload部分包含关于实体和其他数据的声明（claims），Signature部分包含将Header和Payload进行Base64Url编码和算法计算的签名，用于验证令牌的完整性和真实性。
 
-![ ](images/游戏开发/d角色动画/3-3.png)
+本文中的商品列表、订单等资源访问需要有JWT令牌，具体做法是在请求头中添加Authorization字段，值为Bearer <Token>。
 
-对于每一个Animation State，都会直接播放对应的动画，Jump是例外，它会根据当前是否下落，决定播放下落动画还是跳跃动画。
+![JWT资源限制测试](Vector/3.2.2-1.png)
 
-![ ](images/游戏开发/d角色动画/3-4.png)
+### 3.3 商品网络爬虫
 
-状态间的切换是通过创建的变量来实现的。
+本文的商品列表使用Ktor客户端发起网络请求，并使用Ksoup将请求结果HTML解析，获取商品信息并存储到数据类，最后存储到数据库中。
 
-![ ](images/游戏开发/d角色动画/3-5.png)
+每次服务端返回商品列表时，都会先确定数据库中是否有数据，若没有才向其他服务器爬取，减少对其他网站的请求次数。
 
-### （五）角色攻击
+![商品网络爬虫测试](Vector/3.3-1.png)
 
-在Input/Actions中创建IA_Attack。
+### 3.4 推荐算法
 
-![ ](images/游戏开发/e角色攻击/1-1.png)
+本文中设计了一个比较简单的推荐算法：基于玩家当前游戏点数数量<sup>[9]</sup>和历史购买记录进行推荐<sup>[10]</sup>，并随机推荐一些内容，将两者按照一定权重进行混合。
 
-打开Input/IMC_Player，添加映射，将IA_Attack绑定到鼠标左键。
+### 3.5 订单
 
-![ ](images/游戏开发/e角色攻击/1-2.png)
+因为订单系统的设计比较复杂，还需要接入各种第三方支付平台，本文简化了订单，玩家在购买商品时，这件商品会直接加入到用户已购买的商品列表中。
 
-打开Animation/Warrior/ABP_Warrior，在状态机输出前添加重写默认插槽。
+## 4 总结与展望
 
-![ ](images/游戏开发/e角色攻击/1-3.png)
+### 4.1 研究成果总结
 
-打开Blueprints/BP_Character，添加增强输入事件IA_Attack。同时，修改增强输入事件IA_Dash的逻辑，将其改为仅在角色非攻击、非突进、速度不为0时触发，并将动画播放功能放到默认插槽。
+创新游戏商业模式。本文通过在游戏内添加可使用游戏货币购买的商品，提升了用户粘性，成功将真实商品融入Roguelike游戏中，开辟了游戏行业的新模式。
 
-![ ](images/游戏开发/e角色攻击/1-4.png)
+推动了游戏与电商的跨界融合。本文探索了游戏与电商两大领域的协同效应，既丰富了游戏内容，又通过游戏化的方式促进商品销售。
 
-将增强输入事件IA_Jump和IA_Move改为在非重击时触发，在轻击时，取消攻击并触发后续动作。
+新技术的应用与实现。本文使用虚幻5开发了具有高水准画面表现和精妙战斗设计的Roguelike游戏，实现了程序化内容生成（PCG）框架，自动生成多样化的游戏场景和生物。同时，采用Ktor、Exposed和Kotlin Serialization等技术构建了高效、可扩展的游戏商城服务器。
 
-![ ](images/游戏开发/e角色攻击/1-5.png)
+### 4.2 不足与改进方向
 
-![ ](images/游戏开发/e角色攻击/1-6.png)
+本文只实现了使用游戏货币全量购买商品，没有实现部分商品采用游戏货币部分抵扣加真实货币购买的功能。这会导致游戏对于商家而言只有支出而没有收入，需要做进一步优化。同时，还可以考虑通过引入广告的方式增加收入。
 
-打开Animation/Warrior/ABP_Warrior，将与Dash有关的部分都删除。
+游戏的可玩性和丰富度尚存在不足。游戏存在生物群落比较单一、游戏道具不够丰富等问题。游戏的战斗系统存在缺陷，玩家攻击时并不能主动走向被攻击生物，角色的攻击方式也过于单一。游戏的商城功能并不完善，例如购物车功能、订单系统的缺失。这些需要后续逐步优化和迭代。
 
-![ ](images/游戏开发/e角色攻击/1-7.png)
+### 4.3 未来研究方向
 
-![ ](images/游戏开发/e角色攻击/1-8.png)
+这是一个好开始，在不多的时间里我学习并开发游戏，同时融入商城前后端，制作了这样一个大体系的项目。未来我会继续丰富游戏内容，更新自己的美术资源，优化战斗体验。有了这一次的尝试，我也终于勇敢地向游戏开发领域迈出了第一步，此后我将继续努力，努力成为游戏开发者。
 
-### （六）角色动画音效
+## 参考文献
 
-将下载的音效导入到Assets/SoundEffects并做重命名处理。
+[1] 高蕾.电商平台游戏化对用户冲动购买行为的影响机制研究[D].东华大学,2024.
 
-![ ](images/游戏开发/f角色动画音效/1-1.png)
+[2] 熊瑛.电商平台游戏化营销对消费者持续购买意愿的影响研究——基于使用和满足理论的视角[J].商业经济研究,2024,(20):71-74.
 
-打开Animation/Warrior/AS_Warrior，这里以攻击动画为例，添加动画音效。定位到挥剑的动作，右键轨道1，选择添加通知 > Play Sound。
+[3] 陈元硕,谢薇.电商平台游戏中的绿色广告行为及其规制研究[J].科技传播,2024,16(11):120-123.
 
-![ ](images/游戏开发/f角色动画音效/1-2.png)
+[4] 张林.移动电商平台游戏化对消费者行为的影响机理研究[D].哈尔滨工业大学,2024.
 
-选中创建的通知，在右下角选择刚刚导入的音效，反复调节效果。同样地，对其他动画做同样地处理。
+[5] 何玉川.游戏化激励对电商平台顾客忠诚度影响研究[D].山西财经大学,2024.
 
-![ ](images/游戏开发/f角色动画音效/1-3.png)
+[6] 李雨欣.游戏化互动对电商平台用户参与意愿的影响研究[D].广东财经大学,2024.
 
-在Blueprints/BP_Character中，为突进重击添加停止跳跃和快速落地的效果；为跳跃添加音效，并限制只能在Z轴速度为0时跳跃。
+[7] 汪旭晖,刘熙桐,宋松.平台型电商游戏化营销策略对用户消费行为的影响[J].中国流通经济,2023,37(04):47-59.
 
-![ ](images/游戏开发/f角色动画音效/1-4.png)
+[8] 李彤云,马军平,杨昊博,曹丽.产品信息的游戏化传播及说服效应研究[J].内江科技,2022,43(01):82-83+148.
 
-### （七）敌人制作
+[9] 李建斌,钱自顺,蔡学媛,戴宾.跨境电商下基于商品属性–情境的推荐算法[J].系统工程学报,2024,39(03):333-343+468.
 
-#### 1. 敌人导入并制作动画
+[10] 王茜,喻继军.基于商品购买关系网络的多样性推荐[J].系统管理学报,2020,29(01):61-72.
 
-将敌人Fire_Worm资源整理并导入Assets/Enemies。
+[11] 楚啸原,杨晓凡,理原,雷雳.虚拟商品感知有用性与网络游戏消费意愿：有调节的中介模型[J].中国临床心理学杂志,2020,28(05):1013-1016.
 
-![ ](images/游戏开发/g敌人制作/1-1.png)
+[12] 李宣.移动营销中的游戏化及其规制研究——基于行为经济学的视角[J].四川师范大学学报(社会科学版),2023,50(06):98-107.
 
-这里以攻击动画为例，先对纹理应用Paper2D纹理设置，之后提取Sprite。
+[13] 王治,江文婷.游戏化营销策略对消费者补偿性消费行为的影响[J].商业经济研究,2024,(14):47-51.
 
-![ ](images/游戏开发/g敌人制作/1-2.png)
+[14] 余文涛,张国阳,何毅,耿慧.平台经济环境下“平台-物流-商家”生态合作演化博弈研究[J].系统工程理论与实践,1-30.
 
-将Sprite提取模式改为网格，并设置单元宽高，确保每个精灵都能分割在一个网格中，并且精灵底部触碰网格底部。
+[15] 焦媛媛,高雪,张丹.电商平台情境下顾客黏性构念开发及其形成机制研究[J].管理工程学报,2023,37(04):67-84.
 
-![ ](images/游戏开发/g敌人制作/1-3.png)
+[16] 杜松华,徐嘉泓,张德鹏,杨晓光.游戏化如何驱动电商用户绿色消费行为——基于蚂蚁森林的网络民族志研究[J].南开管理评论,2022,25(02):191-204.
 
-提取后将所有Sprite的枢轴模式改为底部居中，创建图像序列即可。
+[17] 张剑,罗君.“游戏化”视角下电商平台“拉人助力”玩法分析——以“超级星秀猫”为例[J].文化与传播,2021,10(04):87-91.
 
-![ ](images/游戏开发/g敌人制作/1-4.png)
+[18] 马可盈.游戏化营销情境中电商平台用户持续使用意愿影响因素研究[D].华南理工大学,2022.
 
-之后仿照角色制作，在Animation/FireWorm创建ABP_FireWorm和AS_FireWorm。
+[19] 文露.手机电商时代APP游戏化特征对消费者持续使用意愿的影响研究[J].中国储运,2022,(02):86-87.
 
-![ ](images/游戏开发/g敌人制作/1-5.png)
+[20] 唐乐水,马缘园.心流理论下电商直播间的游戏化叙事[J].南京晓庄学院学报,2022,38(03):104-109.
 
-![ ](images/游戏开发/g敌人制作/1-6.png)
+[21] Paschmann JW, Bruno HA, van Heerde HJ, Völckner F, Klein K. Driving Mobile App User Engagement Through Gamification[J]. Journal of Marketing Research (JMR). 2025, 62(2):249-273.
 
-#### 2. 重构分类生物蓝图
+[22] Denden M, Abed M, Holotescu V, Tlili A, Holotescu C, Grosseck G. Down to the Rabbit Hole: How Gamification is Integrated in Blockchain Systems? A Systematic Literature Review[J]. International Journal of Human-Computer Interaction. 2024, 40(19): 5617-5631.
 
-在Blueprints下，将BP_Character改名为BP_Warrior，并存放到Characters文件夹中。
+[23] Butler N, Spoelstra S. Redemption Through Play? Exploring the Ethics of Workplace Gamification[J]. Journal of Business Ethics. 2024, 193(2): 259-270.
 
-新建一个PaperZDCharacter命名BP_Creature，作为游戏中所有生物的父类，再新建其子类BP_Character和BP_Enemy。
+[24] Ebrahimi E, Irani HR, Abbasi M, Abedini A. The effect of gamification on brand equity and desirable consumer behaviors in online retail stores: The mediating role of brand engagement[J]. Interdisciplinary Journal of Management Studies. 2024, 17(2): 379-391.
 
-将BP_Creature材质 > 元素0改为MaskedLitSpriteMaterial，勾选光照 > 投射阴影。
+[25] Durmaz TB, Fuertes JL, Imbert R. Toward Usability Testing of Motivational Affordances through Gamification[J]. International Journal of Human-Computer Interaction. 2024, 40(9): 2398-2414.
 
-新建一个Enemies文件夹存放敌人，在其中新建BP_Enemy子类，命名为BP_FireWorm。
+[26] Milanesi M, Guercini S, Runfola A. Let's play! Gamification as a marketing tool to deliver a digital luxury experience[J]. Electronic Commerce Research, 2023, 23(4): 2135-2152.
 
-![ ](images/游戏开发/g敌人制作/2-1.png)
+[27] Kusumawardani KA, Widyanto HA, Tambunan JEG. The role of gamification, social, hedonic and utilitarian values on e-commerce adoption[J]. Spanish Journal of Marketing - ESIC, 2023, 27(2): 158-177.
 
-将BP_Warrior的父类改为BP_Character。
+[28] Zhang J, Jiang Q, Zhang W, Kang L, Lowry PB, Zhang X. Explaining the Outcomes of Social Gamification: A Longitudinal Field Experiment. Journal of Management Information Systems[J]. 2023, 40(2): 401-439.
 
-![ ](images/游戏开发/g敌人制作/2-2.png)
+[29] Xu X-Y, Tayyab SMU, Jia Q-D, Wu K. Exploring the Gamification Affordances in Online Shopping with the Heterogeneity Examination through REBUS-PLS[J]. Journal of Theoretical & Applied Electronic Commerce Research. 2023, 18(1): 289-310.
 
-将BP_Warrior的SpringArm和Camera组件移动到父类BP_Character。
+[30] Szachta K. Gamification in marketing strategies on the example of the e-commerce market[J]. Zeszyty Naukowe PTE w Zielonej Górze, 2022, ½(16): 149-159.
 
-![ ](images/游戏开发/g敌人制作/2-3.png)
+[31] Ho Y-J, Liu S, Wang L. Fun Shopping: A Randomized Field Experiment on Gamification[J]. Information Systems Research. 2023, 34(2): 766-785.
 
-将BP_Warrior的所有蓝图和变量移动到BP_Character。
+## 致谢
 
-![ ](images/游戏开发/g敌人制作/2-4.png)
+流年似水，岁月如歌。一路上磕磕绊绊，笑语欢声，随文章落幕，我的学生生涯也终将告一段落。
 
-将增强输入操作IA_Attack和IA_Dash中引用到的动画资源提升为变量，并在BP_Warrior中设置。
-
-![ ](images/游戏开发/g敌人制作/2-5.png)
-
-![ ](images/游戏开发/g敌人制作/2-6.png)
-
-#### 3. 构建敌人动画蓝图
-
-到BP_FireWorm中，将Paper ZD > Anim Instance Class改为ABP_FireWorm。
-
-![ ](images/游戏开发/g敌人制作/3-1.png)
-
-打开ABP_FireWorm，再AnimGraph中创建状态机。
-
-![ ](images/游戏开发/g敌人制作/3-2.png)
-
-打开状态机，仿照ABP_Warrior制作。
-
-![ ](images/游戏开发/g敌人制作/3-3.png)
-
-在事件图标中添加逻辑。
-
-![ ](images/游戏开发/g敌人制作/3-4.png)
-
-### （八）敌人AI行为树
-
-#### 1. 创建敌人AI行为树
-
-在AI/Enemy下新建AIController子类和行为树，分别命名为AIC_Enemy和BT_Enemy。
-
-![ ](images/游戏开发/h敌人AI行为树/1-1.png)
-
-打开AIC_Enemy，在事件开始运行时运行行为树BT_Enemy。
-
-![ ](images/游戏开发/h敌人AI行为树/1-2.png)
-
-打开BT_Enemy，新建一个人物，名为BTTask_Patrol。
-
-![ ](images/游戏开发/h敌人AI行为树/1-3.png)
-
-在BTTask_Patrol中让AI控制的角色在圆形范围内移动。
-
-![ ](images/游戏开发/h敌人AI行为树/1-4.png)
-
-回到BT_Enemy，制作行为树，然角色每隔一段事件在附近巡逻。
-
-![ ](images/游戏开发/h敌人AI行为树/1-5.png)
-
-#### 2. 敌人设置
-
-打开Blueprints/BP_Enemy，设置Pawn > 自动控制AI为已防止在场景中或已生成，将Pawn > AI控制器类改为AIC_Enemy。
-
-![ ](images/游戏开发/h敌人AI行为树/2-1.png)
-
-#### 3. 测试AI是否正常运行
-
-在场景中创建体积 > 导航网格体边界体积。
-
-![ ](images/游戏开发/h敌人AI行为树/3-1.png)
-
-将导航网格体边界体积放大，确保覆盖场景中的物品，按下P键预览可导航区域。
-
-![ ](images/游戏开发/h敌人AI行为树/3-2.png)
-
-将BP_FireWorm放在场景中，观察AI是否生效。通过测试发现敌人可以正常移动，但是在移动时，会转动Sprite，因为Sprite是2D的，转动时会显示成一片，需要改进AI移动。
-
-![ ](images/游戏开发/h敌人AI行为树/3-3.png)
-
-#### 4. 重构移动时旋转
-
-将BP_Character中的旋转逻辑提取到BP_Creature中作为单独方法存在，并且将BP_Creature的Pawn > 使用控制器旋转Yaw取消勾选。
-
-![ ](images/游戏开发/h敌人AI行为树/4-1.png)
-
-![ ](images/游戏开发/h敌人AI行为树/4-2.png)
-
-在BTTask_Patrol中计算朝向，将Controlled Pawn转化为BP_Enemy，在AI Move To前调用其Roate将敌人转向。
-
-![ ](images/游戏开发/h敌人AI行为树/4-3.png)
+感谢好友的督促和鼓励，陪我走完大学最后的时光；感谢导师的宝贵建议，让我能不断明确行文方向；感谢家人长久以来的支持，让我能够完成自己的梦想。
