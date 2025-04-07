@@ -35,10 +35,3 @@ suspend fun getProducts(): List<Product> {
 
     return products
 }
-
-
-suspend fun main () {
-    getProducts().forEach {
-        println(it)
-    }
-}

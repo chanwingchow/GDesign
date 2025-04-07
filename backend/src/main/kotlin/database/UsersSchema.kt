@@ -49,7 +49,7 @@ class UserService(database: Database) {
     suspend fun select(id: Int): User? = query {
         Users.selectAll()
             .where { Users.id eq id }
-            .map { User(it[Users.id], it[Users.name], it[Users.password], it[Users.points]) }
+            .map { User(it[Users.id], it[Users.password], it[Users.name], it[Users.points]) }
             .singleOrNull()
     }
 
@@ -64,6 +64,7 @@ class UserService(database: Database) {
             it[id] = user.id
             it[name] = user.name
             it[password] = user.password
+            it[points] = user.points
         }
     }
 
@@ -77,6 +78,7 @@ class UserService(database: Database) {
         Users.update(where = { Users.id eq user.id }) {
             it[name] = user.name
             it[password] = user.password
+            it[points] = user.points
         }
     }
 

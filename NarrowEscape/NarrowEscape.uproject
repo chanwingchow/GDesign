@@ -23,6 +23,10 @@
 		{
 			"Name": "PCGGeometryScriptInterop",
 			"Enabled": true
+		},
+		{
+			"Name": "VaRest",
+			"Enabled": true
 		}
 	]
 }
