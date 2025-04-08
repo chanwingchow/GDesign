@@ -2,9 +2,12 @@ package com.chanwingchow.database
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.chanwingchow.Response
 import de.mkammerer.argon2.Argon2Factory
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -49,7 +52,16 @@ fun Application.configureUserRoute(database: Database) {
                 .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                 .sign(Algorithm.HMAC256(environment.config.property("jwt.secret").getString()))
 
-            call.respond(HttpStatusCode.OK, token)
+            call.respond(Response(token))
+        }
+
+        // 获取游戏点数
+        get("points") {
+            val principal = call.principal<JWTPrincipal>()
+            val id = principal!!.payload.getClaim("id").asInt()
+            val user = userService.select(id)
+
+            call.respond(Response(user!!.points))
         }
     }
 }

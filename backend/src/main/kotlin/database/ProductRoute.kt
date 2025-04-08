@@ -1,5 +1,6 @@
 package com.chanwingchow.database
 
+import com.chanwingchow.Response
 import com.chanwingchow.spider.getProducts
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
@@ -22,7 +23,7 @@ fun Application.configureProductRoute(database: Database) {
                     products = getProducts()
                     productService.insertAll(products)
                 }
-                call.respond(products)
+                call.respond(Response(products))
             }
         }
     }

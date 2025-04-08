@@ -1,5 +1,6 @@
 package com.chanwingchow.database
 
+import com.chanwingchow.Response
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,7 +18,7 @@ fun Application.configureOrderRoute(database: Database) {
             get("/orders") {
                 val userId = call.parameters["userId"]?.toInt()
                 userId?.let {
-                    call.respond(orderService.selectAll(it))
+                    call.respond(Response(orderService.selectAll(it)))
                 } ?: call.respond(HttpStatusCode.BadRequest)
             }
 

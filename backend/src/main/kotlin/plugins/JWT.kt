@@ -2,12 +2,9 @@ package com.chanwingchow.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authentication
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.jwt.jwt
-import io.ktor.server.response.respond
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 
 /**
  * 配置 JWT。
@@ -29,10 +26,7 @@ fun Application.configureJWT() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
-            }
-            challenge { _, _ ->
-                call.respond(HttpStatusCode.Unauthorized, "Token 错误")
+                if (credential.payload.getClaim("username").asString() != "") JWTPrincipal(credential.payload) else null
             }
         }
     }
