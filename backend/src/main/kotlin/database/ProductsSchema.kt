@@ -32,7 +32,7 @@ class ProductService(database: Database) {
      * 产品表。
      */
     object Products : Table() {
-        val id = long("id").autoIncrement()
+        val id = long("id")
         val name = varchar("name", length = 50)
         val image = varchar("image", length = 200)
         val points = integer("points")
@@ -53,6 +53,7 @@ class ProductService(database: Database) {
      */
     suspend fun insertAll(products: List<Product>) = query {
         Products.batchInsert(products) {
+            this[Products.id] = it.id
             this[Products.name] = it.name
             this[Products.points] = it.points
             this[Products.image] = it.image

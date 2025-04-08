@@ -12,11 +12,10 @@ import org.jetbrains.exposed.sql.Database
 /**
  * 配置产品路由。
  */
-fun Application.configureProductRoute(database: Database) {
-    val productService = ProductService(database)
-
+fun Application.configureProductRoute(productService: ProductService) {
     routing {
         authenticate("jwt") {
+            // 所有产品
             get("/products") {
                 var products = productService.selectAll()
                 if (products.isEmpty()) {
@@ -24,6 +23,13 @@ fun Application.configureProductRoute(database: Database) {
                     productService.insertAll(products)
                 }
                 call.respond(Response(products))
+            }
+
+            // 单个产品
+            get ("/products/{id}") {
+                val id = call.parameters["id"]!!
+                val product = productService.select(id.toLong())!!
+                call.respond(Response(product))
             }
         }
     }

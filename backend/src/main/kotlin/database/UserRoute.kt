@@ -12,14 +12,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.Database
 import java.util.*
 
 /**
  * 配置用户路由。
  */
-fun Application.configureUserRoute(database: Database) {
-    val userService = UserService(database)
+fun Application.configureUserRoute(userService: UserService) {
     val argon2 = Argon2Factory.create()
 
     routing {
@@ -55,13 +53,25 @@ fun Application.configureUserRoute(database: Database) {
             call.respond(Response(token))
         }
 
-        // 获取游戏点数
-        get("points") {
-            val principal = call.principal<JWTPrincipal>()
-            val id = principal!!.payload.getClaim("id").asInt()
-            val user = userService.select(id)
+        authenticate("jwt") {
+            // 获取游戏点数
+            get("points") {
+                val principal = call.principal<JWTPrincipal>()
+                val id = principal!!.payload.getClaim("id").asInt()
+                val user = userService.select(id)
 
-            call.respond(Response(user!!.points))
+                call.respond(Response(user!!.points))
+            }
+
+            // 添加点数
+            post("points") {
+                val pointsForm = call.receive<PointsForm>()
+                val principal = call.principal<JWTPrincipal>()
+                val id = principal!!.payload.getClaim("id").asInt()
+                val user = userService.select(id)!!
+                userService.update(user.copy(points = user.points + pointsForm.points))
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
@@ -69,3 +79,7 @@ fun Application.configureUserRoute(database: Database) {
 
 @Serializable
 data class UserForm(val id: Int, val password: String)
+
+
+@Serializable
+data class PointsForm(val points: Int)

@@ -1,5 +1,8 @@
 package com.chanwingchow.plugins
 
+import com.chanwingchow.database.OrderService
+import com.chanwingchow.database.ProductService
+import com.chanwingchow.database.UserService
 import com.chanwingchow.database.configureOrderRoute
 import com.chanwingchow.database.configureProductRoute
 import com.chanwingchow.database.configureUserRoute
@@ -27,7 +30,10 @@ fun Application.configureDatabases() {
     )
 
     configureJWT()
-    configureUserRoute(database)
-    configureProductRoute(database)
-    configureOrderRoute(database)
+    val userService = UserService(database)
+    val productService = ProductService(database)
+    val orderService = OrderService(database)
+    configureUserRoute(userService)
+    configureProductRoute(productService)
+    configureOrderRoute(userService, productService, orderService)
 }
