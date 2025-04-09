@@ -46,4 +46,5 @@ dependencies {
     implementation("com.mysql:mysql-connector-j:9.2.0")
     implementation("com.diglol.crypto:kdf:0.2.0")
     implementation("com.fleeksoft.ksoup:ksoup:0.2.2")
+    implementation("com.github.android-password-store:sublime-fuzzy:2.3.4")
 }

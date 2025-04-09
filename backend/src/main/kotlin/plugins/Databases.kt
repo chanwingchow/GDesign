@@ -34,6 +34,6 @@ fun Application.configureDatabases() {
     val productService = ProductService(database)
     val orderService = OrderService(database)
     configureUserRoute(userService)
-    configureProductRoute(productService)
+    configureProductRoute(userService, productService, orderService)
     configureOrderRoute(userService, productService, orderService)
 }

@@ -9,7 +9,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.Database
 
 fun Application.configureOrderRoute(
     userService: UserService,
@@ -34,6 +33,7 @@ fun Application.configureOrderRoute(
                 val productId = call.receive<OrderForm>().productId
                 val product = productService.select(productId)!!
 
+                // 玩家点数不足
                 if (user.points < product.points) {
                     call.respond(HttpStatusCode.Forbidden)
                     return@post
