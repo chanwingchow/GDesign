@@ -47,7 +47,7 @@ fun Application.configureUserRoute(userService: UserService) {
                 .withAudience(environment.config.property("jwt.audience").getString())
                 .withIssuer(environment.config.property("jwt.issuer").getString())
                 .withClaim("id", userForm.id)
-                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .withExpiresAt(Date(System.currentTimeMillis() + 3600 * 1000 * 48))
                 .sign(Algorithm.HMAC256(environment.config.property("jwt.secret").getString()))
 
             call.respond(Response(token))
