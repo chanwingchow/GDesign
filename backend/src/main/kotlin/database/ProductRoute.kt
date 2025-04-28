@@ -40,7 +40,7 @@ fun Application.configureProductRoute(
 
                 // 无购买记录则返回打乱后列表
                 if (historyProducts.isEmpty()) {
-                    call.respond(Response(products.shuffled()))
+                    call.respond(Response(products.shuffledOrSortIfMostLarger(points)))
                     return@get
                 }
 
@@ -59,12 +59,10 @@ fun Application.configureProductRoute(
                 }
 
                 // 商品所需点数普遍大于玩家点数，则按点数排序
-                if (recommendProducts.count { it.points >= points } > recommendProducts.size / 2) {
-                    recommendProducts.sortBy { it.points }
-                }
+                recommendProducts.sortIfMostLarger(points)
 
                 // 在尾部加入随机的剩余商品
-                recommendProducts.addAll(mutableProducts.shuffled())
+                recommendProducts.addAll(mutableProducts.shuffledOrSortIfMostLarger(points))
 
                 call.respond(Response(recommendProducts))
             }
@@ -77,4 +75,20 @@ fun Application.configureProductRoute(
             }
         }
     }
+}
+
+
+fun MutableList<Product>.sortIfMostLarger(point: Int): MutableList<Product> {
+    if (count { it.points >= point } > this.size / 3 * 2) {
+        sortBy { it.points }
+    }
+    return this
+}
+
+
+fun List<Product>.shuffledOrSortIfMostLarger(point: Int): List<Product> {
+    if (count { it.points >= point } > this.size / 3 * 2) {
+        return sortedBy { it.points }
+    }
+    return shuffled()
 }
